@@ -1,11 +1,11 @@
-# mongodb-atlas-rag-ingestion
+# Mongodb Atlas RAG Ingestion using MonogoDB Labs
 A complete ingestion pipeline for a Retrieval-Augmented Generation (RAG) application using MongoDB Atlas Vector Search, LangChain, OpenAI, and VoyageAI.
 
-# Creating a RAG Application with MongoDB Atlas
+# Creating a RAG Application with MongoDB Atlas (Problem Statement 1)
 
 This repository demonstrates the document ingestion phase of building a Retrieval-Augmented Generation (RAG) application. It takes a source PDF document, chunks the text, generates vector embeddings using VoyageAI, extracts metadata using OpenAI, and stores the final document vectors in MongoDB Atlas for efficient similarity search.
 
-## Overview
+## Overview - Mongodb Atlas RAG Ingestion
 
 The `load_data.py` script performs the following operations:
 1. **Connects to MongoDB:** Initializes a connection to a MongoDB database (`langchain_demo`) and collection (`chunked_data`), clearing any existing data.
@@ -144,5 +144,81 @@ document_count = collection.count_documents({})
 print(f"Successfully stored {document_count} documents in MongoDB Atlas")
 client.close()
 ```
+
+
+# Implement the Retriever using RAG & Mongodb Atlas (Problem Statement 2)
+
+## Problem Statement 2 Overview - Implement the Retriever using RAG & Mongodb Atlas
+This repository demonstrates how to implement the retriever component of a Retrieval-Augmented Generation (RAG) system. Using LangChain, VoyageAI for embeddings, and MongoDB Atlas as the vector store, this script retrieves the most relevant document chunks based on a user's natural language query.
+
+## Overview - Mongodb Atlas RAG Ingestion
+# Implementing a RAG Retriever with MongoDB Atlas
+
+This repository demonstrates how to implement the retriever component of a Retrieval-Augmented Generation (RAG) system. Using LangChain, VoyageAI for embeddings, and MongoDB Atlas as the vector store, this script retrieves the most relevant document chunks based on a user's natural language query.
+
+The `demo.py` script performs the following operations:
+
+* **Connects to Atlas Vector Search:** Initializes a connection to the existing MongoDB database (`langchain_demo`) and collection (`chunked_data`) where our document vectors are stored.
+* **Configures the Retriever:** Converts the vector store into a retriever interface, instructing it to perform a "similarity" search and return the top 3 most relevant results (`k: 3`).
+* **Executes a Query:** Passes the query *"When did MongoDB begin supporting multi-document transactions?"* to the retriever and prints the resulting document chunks.
+
+## Changes Required to Complete the Lab
+To successfully build the retriever from the starter template, the following `TODO` sections were completed:
+
+### 1. Vector Store Definition
+The `MongoDBAtlasVectorSearch.from_connection_string` method needed the database routing information.
+* **`connection_string`**: Set to the `connection_string` variable.
+* **`namespace`**: Formatted using an f-string to combine the database and collection names: `f"{db_name}.{collection_name}"`.
+* **`index_name`**: Set to the `index` variable (`"vector_index"`).
+
+### 2. Retriever Configuration
+The `vector_store.as_retriever()` method needed search parameters to know how to fetch data.
+* **`search_type`**: Set to `"similarity"` to perform a standard vector math comparison.
+* **`search_kwargs`**: Set to `{"k": 3}` to limit the returned documents to the top 3 most relevant matches.
+
+## `demo.py` Code
+Here is the fully completed script:
+
+```python
+from dotenv import load_dotenv
+import os
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain_voyageai import VoyageAIEmbeddings
+
+load_dotenv("/app/.env")
+voyageai_model = "voyage-3.5-lite"
+mock_voyageai_key = os.getenv("VOYAGE_API_KEY")
+
+db_name = "langchain_demo"
+collection_name = "chunked_data"
+index = "vector_index"
+connection_string = os.getenv("CONNECTION_STRING")
+
+# Completed the vectorStore definition by providing the connection string, namespace, and index_name
+vector_store = MongoDBAtlasVectorSearch.from_connection_string(
+    connection_string=connection_string,
+    namespace=f"{db_name}.{collection_name}",
+    embedding=VoyageAIEmbeddings(model=voyageai_model, voyage_api_key=mock_voyageai_key),
+    index_name=index,
+)
+
+# Completed the query_data function
+def query_data(query):
+    retriever = vector_store.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": 3},
+    )
+    results = retriever.invoke(query)
+    return results
+
+# Query the data
+print(query_data("When did MongoDB begin supporting multi-document transactions?"))
+```
+
+
+# Generate answers to specific prompts in your RAG application (Problem Statement 3)
+
+## Problem Statement 3 Overview - Generate answers to specific prompts in your RAG application using a custom prompt template and a series of steps
+
 
 
