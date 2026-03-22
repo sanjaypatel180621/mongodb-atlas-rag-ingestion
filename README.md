@@ -1,11 +1,30 @@
-# Mongodb Atlas RAG Ingestion using MonogoDB Labs
+# Mongodb Atlas RAG Ingestion Application using MonogoDB Labs (End-to-End) 
 A complete ingestion pipeline for a Retrieval-Augmented Generation (RAG) application using MongoDB Atlas Vector Search, LangChain, OpenAI, and VoyageAI.
 
-# Problem Statement 1 - Creating a RAG Application with MongoDB Atlas
+This repository demonstrates how to build a complete **Retrieval-Augmented Generation (RAG)** pipeline using:
 
-This repository demonstrates the document ingestion phase of building a Retrieval-Augmented Generation (RAG) application. It takes a source PDF document, chunks the text, generates vector embeddings using VoyageAI, extracts metadata using OpenAI, and stores the final document vectors in MongoDB Atlas for efficient similarity search.
+- MongoDB Atlas Vector Search  
+- LangChain  
+- OpenAI (LLM for metadata & answer generation)  
+- VoyageAI (Embeddings)  
+
+I have worked to covers the **3 core stages of a RAG system**:
+1. Data Ingestion & Embedding Generation  
+2. Document Retrieval (Retriever)  
+3. Answer Generation (Generator)
+
+---
+
+# Problem Statement 1 - Generate Vector Embeddings
+
+This repository where I demonstrates my skills on the document ingestion phase of building a Retrieval-Augmented Generation (RAG) application. It takes a source PDF document, chunks the text, generates vector embeddings using VoyageAI, extracts metadata using OpenAI, and stores the final document vectors in MongoDB Atlas for efficient similarity search.
+
+## Objective
+I spend time to learn how to generate vector embeddings from documents and store them in MongoDB Atlas for efficient semantic search.
 
 ## Overview - Mongodb Atlas RAG Ingestion
+
+This module focuses on document ingestion, processing, and embedding generation.
 
 The `load_data.py` script performs the following operations:
 1. **Connects to MongoDB:** Initializes a connection to a MongoDB database (`langchain_demo`) and collection (`chunked_data`), clearing any existing data.
@@ -72,7 +91,6 @@ JSON
   "page_label": "1"
 }
 ```
-
 
 ### `load_data.py`
 Here is your finalized python file ready to be committed to the repository:
@@ -145,6 +163,51 @@ print(f"Successfully stored {document_count} documents in MongoDB Atlas")
 client.close()
 ```
 
+## Architecture – Vector Embedding Generation
+
+```text
+          ┌──────────────────────┐
+          │     Source PDF       │
+          │   (mongodb.pdf)      │
+          └─────────┬────────────┘
+                    │
+                    ▼
+          ┌──────────────────────┐
+          │   PyPDFLoader        │
+          │ (LangChain Loader)   │
+          └─────────┬────────────┘
+                    │
+                    ▼
+          ┌──────────────────────┐
+          │   Data Cleaning      │
+          │ (Remove small pages) │
+          └─────────┬────────────┘
+                    │
+                    ▼
+          ┌────────────────────────────┐
+          │ Text Splitter              │
+          │ RecursiveCharacterSplitter │
+          └─────────┬──────────────────┘
+                    │
+                    ▼
+          ┌────────────────────────────┐
+          │ Metadata Generation        │
+          │ OpenAI (gpt-4o-mini)       │
+          └─────────┬──────────────────┘
+                    │
+                    ▼
+          ┌────────────────────────────┐
+          │ Embedding Generation       │
+          │ VoyageAI (voyage-3.5-lite) │
+          └─────────┬──────────────────┘
+                    │
+                    ▼
+          ┌────────────────────────────┐
+          │ MongoDB Atlas              │
+          │ Vector Search Collection   │
+          └────────────────────────────┘
+```
+---
 
 # Problem Statement 2 - Implement the Retriever using RAG & Mongodb Atlas
 
@@ -214,10 +277,297 @@ def query_data(query):
 print(query_data("When did MongoDB begin supporting multi-document transactions?"))
 ```
 
+### Retriever Function
+def query_data(query):
+    retriever = vector_store.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": 3},
+    )
+    return retriever.invoke(query)
 
-# Problem Statement 3 - Generate answers to specific prompts in your RAG application
+
+## Running the Script
+
+Execute the script from your terminal:
+
+```bash
+python3 demo.py
+```
+
+### Example Query
+query_data("When did MongoDB begin supporting multi-document transactions?")
+
+### Output
+Returns top 3 most relevant document chunks based on semantic similarity.
+
+
+### Expected Terminal Output
+The script successfully fetches the 3 most relevant text chunks containing the answer.
+
+```Plaintext
+[
+  {
+    "metadata": {
+      "_id": "68bee58bc2dfb17fdc2461bc",
+      "title": "MongoDB Features and Capabilities",
+      "keywords": [
+        "capped collections",
+        "TTL Indexes",
+        "durability",
+        "journaling",
+        "full text search",
+        "transactions",
+        "ACID transactions",
+        "atomic update operations"
+      ],
+      "hasCode": false,
+      "producer": "xdvipdfmx (20190503)",
+      "creator": "LaTeX with hyperref",
+      "creationdate": "2022-05-27T16:48:41-04:00",
+      "source": "/lab/mongodb.pdf",
+      "total_pages": 36,
+      "page": 31,
+      "page_label": "31"
+    },
+    "page_content": "engine. With MongoDB’s support for arrays and full text search, you will only need to\nlook to other solutions if you need a more powerful and full-featured full text search\nengine.\nTransactions\nMongoDB added full support for ACID transactions26 in 4.0 (extending it to sharded\nclusters in 4.2). Before that there were two alternatives, one which is great and still has\nits place, and the other that was cumbersome but flexible."
+  },
+  {
+    "metadata": {
+      "_id": "68bee58bc2dfb17fdc2461c0",
+      "title": "MongoDB Features and Transactions",
+      "keywords": [
+        "findAndModify",
+        "atomicity",
+        "two-phase commit",
+        "transactions",
+        "MongoDB multi-document transactions",
+        "retry functionality",
+        "geospatial indexes",
+        "geoJSON",
+        "replication",
+        "replica sets",
+        "primary",
+        "secondary"
+      ],
+      "hasCode": false,
+      "producer": "xdvipdfmx (20190503)",
+      "creator": "LaTeX with hyperref",
+      "creationdate": "2022-05-27T16:48:41-04:00",
+      "source": "/lab/mongodb.pdf",
+      "total_pages": 36,
+      "page": 32,
+      "page_label": "32"
+    },
+    "page_content": "commit/rollback steps manually. This is the case where using MongoDB multi-document\ntransactions is a great option as they significantly simplify the application code.\nUsing transactions in MongoDB is as straight forward as in relational databases. You\nstart a transaction which later you can commit or abort. To simplify your code even\nfurther, drivers automatically provide retry functionality on retryable errors.\nGeospatial"
+  },
+  {
+    "metadata": {
+      "_id": "68bee58bc2dfb17fdc2461bd",
+      "title": "MongoDB Features and Capabilities",
+      "keywords": [
+        "capped collections",
+        "TTL Indexes",
+        "durability",
+        "journaling",
+        "full text search",
+        "transactions",
+        "ACID transactions",
+        "atomic update operations"
+      ],
+      "hasCode": false,
+      "producer": "xdvipdfmx (20190503)",
+      "creator": "LaTeX with hyperref",
+      "creationdate": "2022-05-27T16:48:41-04:00",
+      "source": "/lab/mongodb.pdf",
+      "total_pages": 36,
+      "page": 31,
+      "page_label": "31"
+    },
+    "page_content": "its place, and the other that was cumbersome but flexible.\nThe first is its many atomic update operations. These are great, so long as they actually\naddress your problem. We already saw some of the simpler ones, like$inc and $set.\n25[http://docs.mongodb.org/manual/tutorial/expire-data/](http://docs.mongodb.org/manual/tutorial/expire-data/)\n26[https://www.mongodb.com/docs/manual/core/transactions/](https://www.mongodb.com/docs/manual/core/transactions/)\n31"
+  }
+]
+```
+
+## Architecture – Implement the Retriever using RAG & Mongodb Atlas and Document Retriever (RAG)
+
+```text
+           ┌──────────────────────┐
+           │     User Query       │
+           │ "Natural Language"   │
+           └─────────┬────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ Query Embedding Generation │
+           │ VoyageAI Embeddings        │
+           └─────────┬──────────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ MongoDB Atlas Vector Search│
+           │ (Similarity Search)        │
+           └─────────┬──────────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ Top-K Documents Retrieved  │
+           │ (k = 3 most relevant)      │
+           └────────────────────────────┘
+```
+---
+
+# Problem Statement 3 – Build the Answer Generator
+
+## Objective
+Generate accurate answers using retrieved documents and LLM.
 
 ## Overview - Generate answers to specific prompts in your RAG application using a custom prompt template and a series of steps
+This module completes the RAG pipeline by integrating retrieval with LLM-based answer generation.
+
+### Workflow: 
+1 - Accept user query
+2 - Retrieve relevant documents
+3 - Pass context to LLM
+4 - Generate final answer
+
+## Implementation
+
+```python
+from langchain_openai import ChatOpenAI
+
+def generate_answer(query, retrieved_docs):
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+    context = "\n\n".join([doc.page_content for doc in retrieved_docs])
+
+    prompt = f"""
+    Answer the question based only on the context below:
+
+    Context:
+    {context}
+
+    Question:
+    {query}
+    """
+
+    response = llm.invoke(prompt)
+    return response.content
+```
+
+### End-to-End Example to run it on Labs
+
+```python
+query = "When did MongoDB begin supporting multi-document transactions?"
+
+docs = query_data(query)
+answer = generate_answer(query, docs)
+
+print(answer)
+```
+
+### RAG Architecture Flow
+```plaintext
+User Query
+   ↓
+Retriever (MongoDB Vector Search)
+   ↓
+Top-K Documents
+   ↓
+LLM (OpenAI)
+   ↓
+Final Answer
+```
+
+## Architecture – Answer Generator (RAG)
+
+```text
+           ┌──────────────────────┐
+           │     User Query       │
+           └─────────┬────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ Retriever (Problem 2)      │
+           │ Fetch Top-K Documents      │
+           └─────────┬──────────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ Context Builder            │
+           │ Combine Retrieved Docs     │
+           └─────────┬──────────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ Prompt Template            │
+           │ (Context + Question)       │
+           └─────────┬──────────────────┘
+                     │
+                     ▼
+           ┌────────────────────────────┐
+           │ LLM (OpenAI GPT-4o-mini)   │
+           │ Answer Generation          │
+           └─────────┬──────────────────┘
+                     │
+                     ▼
+           ┌──────────────────────┐
+           │   Final Answer       │
+           └──────────────────────┘
+```
+---
+
+## Prerequisites
+
+Ensure you have the following before running this project:
+
+- Python 3.x  
+- MongoDB Atlas Cluster with Vector Search Index configured  
+- API Keys:
+  - OpenAI API Key  
+  - VoyageAI API Key  
+
+---
+
+## Environment Variables (.env)
+
+Create a `.env` file in the root directory and add:
+
+```env
+CONNECTION_STRING=your_mongodb_connection
+OPENAI_API_KEY=your_openai_key
+VOYAGE_API_KEY=your_voyage_key
+```
+
+## Labs Summery
+| Component | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| Ingestion | Load, chunk, generate embeddings, and store documents in MongoDB |
+| Retriever | Fetch relevant document chunks using vector similarity search    |
+| Generator | Generate accurate answers using LLM with retrieved context       |
 
 
+---
+**Brief Explanation about what we did in MongoDB Labs:**
+- First we convert documents into embeddings and store in vector DB  
+- Then user query is converted into embedding and matched using similarity search  
+- Finally, retrieved context is passed to LLM to generate accurate answer  
 
+**One-line Summary:**
+> *“RAG = Retriever (MongoDB Vector Search) + Generator (LLM)”*
+
+### Key Learnings
+Build end-to-end Retrieval-Augmented Generation (RAG) applications
+Implement vector search using MongoDB Atlas
+Design semantic search systems using embeddings
+Integrate LLMs with real-world datasets for intelligent responses
+
+## Author
+
+<p align="left">
+  <img src="lab-img.png" alt="Author Image" width="150"/>
+</p>
+
+<p align="left">
+  <b><a href="https://www.google.com/search?q=sanjay+chintamani+patel">Sanjay Chintamani Patel</a></b><br/>
+  Full Stack AI Architect (TCS)
+</p>
