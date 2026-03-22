@@ -1,7 +1,7 @@
 # Mongodb Atlas RAG Ingestion using MonogoDB Labs
 A complete ingestion pipeline for a Retrieval-Augmented Generation (RAG) application using MongoDB Atlas Vector Search, LangChain, OpenAI, and VoyageAI.
 
-# Creating a RAG Application with MongoDB Atlas (Problem Statement 1)
+# Problem Statement 1 - Creating a RAG Application with MongoDB Atlas
 
 This repository demonstrates the document ingestion phase of building a Retrieval-Augmented Generation (RAG) application. It takes a source PDF document, chunks the text, generates vector embeddings using VoyageAI, extracts metadata using OpenAI, and stores the final document vectors in MongoDB Atlas for efficient similarity search.
 
@@ -146,13 +146,12 @@ client.close()
 ```
 
 
-# Implement the Retriever using RAG & Mongodb Atlas (Problem Statement 2)
+# Problem Statement 2 - Implement the Retriever using RAG & Mongodb Atlas
 
-## Problem Statement 2 Overview - Implement the Retriever using RAG & Mongodb Atlas
+## Overview - Implement the Retriever using RAG & Mongodb Atlas
 This repository demonstrates how to implement the retriever component of a Retrieval-Augmented Generation (RAG) system. Using LangChain, VoyageAI for embeddings, and MongoDB Atlas as the vector store, this script retrieves the most relevant document chunks based on a user's natural language query.
 
-## Overview - Mongodb Atlas RAG Ingestion
-# Implementing a RAG Retriever with MongoDB Atlas
+## Overview - Mongodb Atlas RAG Ingestion - Implementing a RAG Retriever with MongoDB Atlas
 
 This repository demonstrates how to implement the retriever component of a Retrieval-Augmented Generation (RAG) system. Using LangChain, VoyageAI for embeddings, and MongoDB Atlas as the vector store, this script retrieves the most relevant document chunks based on a user's natural language query.
 
@@ -216,9 +215,9 @@ print(query_data("When did MongoDB begin supporting multi-document transactions?
 ```
 
 
-# Generate answers to specific prompts in your RAG application (Problem Statement 3)
+# Problem Statement 3 - Generate answers to specific prompts in your RAG application
 
-## Problem Statement 3 Overview - Generate answers to specific prompts in your RAG application using a custom prompt template and a series of steps
+## Overview - Generate answers to specific prompts in your RAG application using a custom prompt template and a series of steps
 
 
 
